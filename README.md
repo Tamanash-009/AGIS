@@ -185,11 +185,11 @@ To run the AGIS platform locally:
 
 ## 👨‍💻 Author
 
-Built with precision by **[Your Name]** 
+Built with precision by **Tamanash Chakraborty** 
 *Data Engineer | Business Intelligence Architect | Analytics Consultant*
 
-- **LinkedIn:** [Your Profile](https://linkedin.com/in/yourprofile)
-- **Portfolio:** [Your Website](https://yourwebsite.com)
+- **LinkedIn:** [Tamanash Chakraborty](https://linkedin.com/in/tamanash-chakraborty)
+- **Portfolio:** [GitHub — Tamanash-009](https://github.com/Tamanash-009)
 
 ---
 
