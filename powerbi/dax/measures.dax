@@ -1,0 +1,551 @@
+// ═══════════════════════════════════════════════════════════════
+// AGIS — Anti-Gravity Intelligence System
+// DAX Measures Library
+// ═══════════════════════════════════════════════════════════════
+// Organization: Measures grouped by Dashboard Page
+// Naming Convention: [Category] Measure Name
+// ═══════════════════════════════════════════════════════════════
+
+
+// ─────────────────────────────────────────────────────────────
+// 1. EXECUTIVE COMMAND CENTER
+// ─────────────────────────────────────────────────────────────
+
+// ── Core KPIs ──
+
+Total Flights = 
+DISTINCTCOUNT(FactFlightTelemetry[FlightID])
+
+Total Telemetry Readings = 
+COUNTROWS(FactFlightTelemetry)
+
+Successful Flights = 
+CALCULATE(
+    DISTINCTCOUNT(FactFlightTelemetry[FlightID]),
+    FactFlightTelemetry[MissionStatus] = "Completed"
+)
+
+Mission Success Rate = 
+DIVIDE(
+    [Successful Flights],
+    [Total Flights],
+    0
+)
+
+Propulsion Efficiency = 
+DIVIDE(
+    AVERAGE(FactFlightTelemetry[LiftOutput_kN]),
+    AVERAGE(FactFlightTelemetry[EnergyConsumed_kW]),
+    0
+)
+
+Average Stability = 
+AVERAGE(FactFlightTelemetry[StabilityScore])
+
+Fleet Size = 
+COUNTROWS(DimAircraft)
+
+Active Fleet = 
+CALCULATE(
+    COUNTROWS(DimAircraft),
+    DimAircraft[Status] = "Active"
+)
+
+Fleet Readiness Score = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(DimAircraft),
+        DimAircraft[Status] = "Active",
+        DimAircraft[CoreHealthIndex] > 0.7
+    ),
+    COUNTROWS(DimAircraft),
+    0
+)
+
+Total R&D Spending = 
+SUM(FactFinance[RDCost])
+
+Total Revenue = 
+SUM(FactFinance[Revenue])
+
+Total Investment = 
+SUM(FactFinance[Investment])
+
+
+// ── Trend Measures ──
+
+Flights Previous Month = 
+CALCULATE(
+    [Total Flights],
+    DATEADD(DimDate[Date], -1, MONTH)
+)
+
+Flights MoM Change = 
+DIVIDE(
+    [Total Flights] - [Flights Previous Month],
+    [Flights Previous Month],
+    0
+)
+
+Revenue YTD = 
+TOTALYTD(
+    SUM(FactFinance[Revenue]),
+    DimDate[Date]
+)
+
+R&D Spending YTD = 
+TOTALYTD(
+    SUM(FactFinance[RDCost]),
+    DimDate[Date]
+)
+
+
+// ─────────────────────────────────────────────────────────────
+// 2. FLIGHT OPERATIONS
+// ─────────────────────────────────────────────────────────────
+
+Max Altitude Achieved = 
+MAX(FactFlightTelemetry[Altitude_m])
+
+Average Altitude = 
+AVERAGE(FactFlightTelemetry[Altitude_m])
+
+Max Velocity = 
+MAX(FactFlightTelemetry[Velocity_mps])
+
+Average Velocity = 
+AVERAGE(FactFlightTelemetry[Velocity_mps])
+
+Avg Turbulence = 
+AVERAGE(FactFlightTelemetry[Turbulence])
+
+Flight Hours Total = 
+DIVIDE(
+    COUNTROWS(FactFlightTelemetry),
+    3600,
+    0
+)
+
+Flights by Phase = 
+COUNTROWS(FactFlightTelemetry)
+
+Anomaly Rate = 
+DIVIDE(
+    CALCULATE(
+        DISTINCTCOUNT(FactFlightTelemetry[FlightID]),
+        FactFlightTelemetry[MissionStatus] = "Anomaly Detected"
+    ),
+    [Total Flights],
+    0
+)
+
+Abort Rate = 
+DIVIDE(
+    CALCULATE(
+        DISTINCTCOUNT(FactFlightTelemetry[FlightID]),
+        FactFlightTelemetry[MissionStatus] = "Aborted"
+    ),
+    [Total Flights],
+    0
+)
+
+
+// ─────────────────────────────────────────────────────────────
+// 3. ANTI-GRAVITY CORE MONITORING
+// ─────────────────────────────────────────────────────────────
+
+Energy Efficiency Index = 
+DIVIDE(
+    SUM(FactFlightTelemetry[LiftOutput_kN]),
+    SUM(FactFlightTelemetry[EnergyConsumed_kW]),
+    0
+)
+
+Avg Core Temperature = 
+AVERAGE(FactFlightTelemetry[CoreTemp_C])
+
+Max Core Temperature = 
+MAX(FactFlightTelemetry[CoreTemp_C])
+
+Avg Lift Output = 
+AVERAGE(FactFlightTelemetry[LiftOutput_kN])
+
+Total Energy Consumed = 
+SUM(FactFlightTelemetry[EnergyConsumed_kW])
+
+Core Stress Index = 
+DIVIDE(
+    AVERAGE(FactFlightTelemetry[CoreTemp_C]),
+    200,
+    0
+) * (1 - DIVIDE(AVERAGE(FactFlightTelemetry[StabilityScore]), 100, 0))
+
+Thermal Efficiency = 
+1 - DIVIDE(
+    AVERAGE(FactFlightTelemetry[CoreTemp_C]),
+    MAX(FactFlightTelemetry[CoreTemp_C]),
+    0
+)
+
+Avg Core Health = 
+AVERAGE(DimAircraft[CoreHealthIndex])
+
+
+// ─────────────────────────────────────────────────────────────
+// 4. PREDICTIVE MAINTENANCE
+// ─────────────────────────────────────────────────────────────
+
+Total Maintenance Events = 
+COUNTROWS(FactMaintenance)
+
+Total Repair Cost = 
+SUM(FactMaintenance[RepairCost])
+
+Average Repair Cost = 
+AVERAGE(FactMaintenance[RepairCost])
+
+Total Downtime Hours = 
+SUM(FactMaintenance[DowntimeHours])
+
+Average Downtime = 
+AVERAGE(FactMaintenance[DowntimeHours])
+
+MTBF (Mean Time Between Failures) = 
+DIVIDE(
+    SUM(DimAircraft[TotalFlightHours]),
+    [Total Maintenance Events],
+    0
+)
+
+Maintenance Cost YTD = 
+TOTALYTD(
+    SUM(FactMaintenance[RepairCost]),
+    DimDate[Date]
+)
+
+Emergency Maintenance Rate = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(FactMaintenance),
+        FactMaintenance[MaintenanceType] = "Emergency"
+    ),
+    [Total Maintenance Events],
+    0
+)
+
+Preventive Maintenance Ratio = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(FactMaintenance),
+        FactMaintenance[MaintenanceType] IN {"Preventive", "Predictive"}
+    ),
+    [Total Maintenance Events],
+    0
+)
+
+Avg Failure Severity = 
+AVERAGE(FactMaintenance[FailureSeverity])
+
+Failure Risk Score = 
+IF(
+    HASONEVALUE(MLPredictions[AircraftID]),
+    AVERAGE(MLPredictions[FailureProbability]),
+    AVERAGE(MLPredictions[FailureProbability])
+)
+
+High Risk Aircraft Count = 
+CALCULATE(
+    COUNTROWS(MLPredictions),
+    MLPredictions[FailureProbability] >= 60
+)
+
+
+// ─────────────────────────────────────────────────────────────
+// 5. MANUFACTURING INTELLIGENCE
+// ─────────────────────────────────────────────────────────────
+
+Total Production Runs = 
+COUNTROWS(FactManufacturing)
+
+Total Production Cost = 
+SUM(FactManufacturing[ProductionCost])
+
+Average Defect Rate = 
+AVERAGE(FactManufacturing[DefectRate])
+
+Overall Yield Rate = 
+1 - [Average Defect Rate]
+
+Average Assembly Time = 
+AVERAGE(FactManufacturing[AssemblyTime_hrs])
+
+Cost Per Unit = 
+DIVIDE(
+    SUM(FactManufacturing[ProductionCost]),
+    SUM(FactManufacturing[BatchSize]),
+    0
+)
+
+High Defect Batches = 
+CALCULATE(
+    COUNTROWS(FactManufacturing),
+    FactManufacturing[DefectRate] > 0.10
+)
+
+High Defect Rate = 
+DIVIDE(
+    [High Defect Batches],
+    [Total Production Runs],
+    0
+)
+
+Quality Grade A+ Rate = 
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(FactManufacturing),
+        FactManufacturing[QualityGrade] = "A+"
+    ),
+    [Total Production Runs],
+    0
+)
+
+Production Cost Trend = 
+CALCULATE(
+    AVERAGE(FactManufacturing[ProductionCost]),
+    DATESINPERIOD(DimDate[Date], LASTDATE(DimDate[Date]), -90, DAY)
+)
+
+
+// ─────────────────────────────────────────────────────────────
+// 6. FINANCIAL COMMAND CENTER
+// ─────────────────────────────────────────────────────────────
+
+Total Budget Planned = 
+SUM(FactFinance[BudgetPlanned])
+
+Total Operational Cost = 
+SUM(FactFinance[OperationalCost])
+
+Budget Variance = 
+SUM(FactFinance[OperationalCost]) - SUM(FactFinance[BudgetPlanned])
+
+Budget Variance % = 
+DIVIDE(
+    [Budget Variance],
+    [Total Budget Planned],
+    0
+)
+
+R&D ROI = 
+DIVIDE(
+    SUM(FactFinance[Revenue]) - SUM(FactFinance[RDCost]),
+    SUM(FactFinance[RDCost]),
+    0
+)
+
+Monthly Burn Rate = 
+AVERAGEX(
+    VALUES(DimDate[YearMonth]),
+    CALCULATE(SUM(FactFinance[OperationalCost]))
+)
+
+Cost Per Flight = 
+DIVIDE(
+    [Total Operational Cost],
+    [Total Flights],
+    0
+)
+
+Over Budget Months = 
+CALCULATE(
+    DISTINCTCOUNT(FactFinance[Month]),
+    FactFinance[BudgetVariance] > 0
+)
+
+Investment Utilization = 
+DIVIDE(
+    SUM(FactFinance[OperationalCost]) + SUM(FactFinance[RDCost]),
+    SUM(FactFinance[Investment]),
+    0
+)
+
+Revenue Per Employee = 
+DIVIDE(
+    [Total Revenue],
+    SUM(DimDepartment[HeadCount]),
+    0
+)
+
+
+// ─────────────────────────────────────────────────────────────
+// UTILITY / FORMATTING MEASURES
+// ─────────────────────────────────────────────────────────────
+
+Success Rate Formatted = 
+FORMAT([Mission Success Rate], "0.0%")
+
+Efficiency Formatted = 
+FORMAT([Propulsion Efficiency], "0.000")
+
+Fleet Readiness Formatted = 
+FORMAT([Fleet Readiness Score], "0.0%")
+
+Budget Variance Formatted = 
+IF(
+    [Budget Variance] >= 0,
+    "▲ " & FORMAT([Budget Variance], "$#,##0"),
+    "▼ " & FORMAT(ABS([Budget Variance]), "$#,##0")
+)
+
+
+// ─────────────────────────────────────────────────────────────
+// 7. COMPOSITE EXECUTIVE KPIS
+//    Each includes: Score, Target, Variance, Trend
+// ─────────────────────────────────────────────────────────────
+
+// ── Mission Risk Score ──
+// Weighted: Anomaly Rate (40%) + Emergency Maint Rate (30%) + Avg Severity (30%)
+Mission Risk Score = 
+VAR _AnomalyNorm = MIN([Anomaly Rate] * 10, 1)
+VAR _EmergNorm = MIN([Emergency Maintenance Rate] * 5, 1)
+VAR _SevNorm = DIVIDE([Avg Failure Severity], 5, 0)
+RETURN
+    ROUND(_AnomalyNorm * 40 + _EmergNorm * 30 + _SevNorm * 30, 1)
+
+Mission Risk Target = 25
+
+Mission Risk Variance = 
+[Mission Risk Score] - [Mission Risk Target]
+
+Mission Risk Trend = 
+VAR _Current = [Mission Risk Score]
+VAR _Previous = CALCULATE([Mission Risk Score], DATEADD(DimDate[Date], -1, MONTH))
+RETURN _Current - _Previous
+
+
+// ── Propulsion Efficiency Index ──
+// Normalized 0-100 based on max achievable efficiency
+Propulsion Efficiency Index = 
+ROUND(
+    DIVIDE(
+        [Propulsion Efficiency],
+        CALCULATE(MAX(FactFlightTelemetry[LiftOutput_kN]) / MAX(FactFlightTelemetry[EnergyConsumed_kW])),
+        0
+    ) * 100,
+    1
+)
+
+Propulsion Efficiency Target = 85.0
+
+Propulsion Efficiency Variance = 
+[Propulsion Efficiency Index] - [Propulsion Efficiency Target]
+
+
+// ── Maintenance Health Score ──
+// 100 minus penalties for emergency rate and severity
+Maintenance Health Score = 
+ROUND(
+    100 
+    - ([Emergency Maintenance Rate] * 50) 
+    - ([Avg Failure Severity] * 4),
+    1
+)
+
+Maintenance Health Target = 85.0
+
+Maintenance Health Variance = 
+[Maintenance Health Score] - [Maintenance Health Target]
+
+
+// ── Budget Utilization ──
+Budget Utilization = 
+ROUND(
+    DIVIDE(
+        [Total Operational Cost],
+        [Total Budget Planned],
+        0
+    ) * 100,
+    1
+)
+
+Budget Utilization Target = 100.0
+
+Budget Utilization Variance = 
+[Budget Utilization] - [Budget Utilization Target]
+
+
+// ── R&D Burn Rate ──
+R&D Burn Rate Pct = 
+ROUND(
+    DIVIDE(
+        [Total R&D Spending],
+        [Total Budget Planned],
+        0
+    ) * 100,
+    1
+)
+
+R&D Burn Rate Target = 30.0
+
+
+// ── Component Reliability Index ──
+Component Reliability Index = 
+ROUND((1 - [Average Defect Rate]) * 100, 1)
+
+Component Reliability Target = 95.0
+
+Component Reliability Variance = 
+[Component Reliability Index] - [Component Reliability Target]
+
+
+// ── Safety Compliance Score ──
+Safety Compliance Score = 
+VAR _CriticalFailures = CALCULATE(
+    COUNTROWS(FactMaintenance),
+    FactMaintenance[FailureSeverity] >= 4
+)
+RETURN
+    ROUND(
+        100 - DIVIDE(_CriticalFailures, [Total Maintenance Events], 0) * 100,
+        1
+    )
+
+Safety Compliance Target = 95.0
+
+Safety Compliance Variance = 
+[Safety Compliance Score] - [Safety Compliance Target]
+
+
+// ── Operational Readiness ──
+// Active, healthy, not in maintenance
+Operational Readiness Score = 
+ROUND(
+    DIVIDE(
+        CALCULATE(
+            COUNTROWS(DimAircraft),
+            DimAircraft[Status] = "Active",
+            DimAircraft[CoreHealthIndex] > 0.7
+        ),
+        COUNTROWS(DimAircraft),
+        0
+    ) * 100,
+    1
+)
+
+Operational Readiness Target = 85.0
+
+Operational Readiness Variance = 
+[Operational Readiness Score] - [Operational Readiness Target]
+
+
+// ── Success Rate MoM ──
+Success Rate MoM = 
+VAR _Current = [Mission Success Rate]
+VAR _Previous = CALCULATE([Mission Success Rate], DATEADD(DimDate[Date], -1, MONTH))
+RETURN
+    _Current - _Previous
+
+// ── Fleet Readiness vs Target ──
+Fleet Readiness Variance = 
+[Fleet Readiness Score] - 0.85
+

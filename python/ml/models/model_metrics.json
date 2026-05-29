@@ -1,0 +1,7 @@
+{
+  "total_aircraft": 50,
+  "high_risk_count": 24,
+  "critical_count": 12,
+  "avg_failure_probability": 52.858000000000004,
+  "avg_days_to_failure": 164.52
+}

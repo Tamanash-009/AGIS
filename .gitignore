@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+venv/
+.env
+
+# Data files (too large for git)
+data/raw/*.csv
+data/raw/*.parquet
+data/raw/*.json
+data/processed/*.csv
+data/processed/*.parquet
+data/synthetic/*.csv
+data/synthetic/*.parquet
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/synthetic/.gitkeep
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# ML Models
+python/ml/models/*.joblib
+python/ml/models/*.pkl
+
+# Power BI
+*.pbix
+*.pbit
+powerbi/*.pbix
+powerbi/*.pbit
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/

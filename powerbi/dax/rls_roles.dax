@@ -1,0 +1,71 @@
+// ═══════════════════════════════════════════════════════════════
+// AGIS — Row Level Security (RLS) Roles
+// Apply these in Power BI Desktop → Modeling → Manage Roles
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Role: Executive ──────────────────────────────────────────
+// Access: ALL data, all departments, all tables
+// Filter: None (full access)
+
+Role: Executive
+Table: DimDepartment
+DAX Filter: TRUE()
+
+
+// ─── Role: Engineer ───────────────────────────────────────────
+// Access: Flight Telemetry, Maintenance, Core Monitoring
+// Restricted: Finance data hidden
+
+Role: Engineer
+Table: DimDepartment
+DAX Filter: 
+    DimDepartment[DepartmentName] IN {
+        "Engineering", 
+        "R&D — Propulsion", 
+        "R&D — Materials",
+        "Flight Operations",
+        "Quality Assurance"
+    }
+
+
+// ─── Role: Operations ────────────────────────────────────────
+// Access: Flight Ops, Manufacturing
+// Restricted: Finance, R&D details
+
+Role: Operations
+Table: DimDepartment
+DAX Filter:
+    DimDepartment[DepartmentName] IN {
+        "Flight Operations",
+        "Manufacturing",
+        "Supply Chain",
+        "Quality Assurance"
+    }
+
+
+// ─── Role: Finance ───────────────────────────────────────────
+// Access: Financial data, Manufacturing costs
+// Restricted: Flight telemetry details, R&D specifics
+
+Role: Finance
+Table: DimDepartment
+DAX Filter:
+    DimDepartment[DepartmentName] IN {
+        "Finance",
+        "Executive Office",
+        "Investor Relations",
+        "Human Resources"
+    }
+
+
+// ─── Role: Investor ──────────────────────────────────────────
+// Access: Executive summary, Financial overview only
+// Restricted: Operational details, maintenance, manufacturing
+
+Role: Investor
+Table: DimDepartment
+DAX Filter:
+    DimDepartment[DepartmentName] IN {
+        "Executive Office",
+        "Investor Relations"
+    }
